@@ -38,7 +38,12 @@ module Nancy
       handler = @routes.fetch(verb, {}).fetch(requested_path, nil)
 
       if handler
-        instance_eval(&handler)
+        result = instance_eval(&handler)
+        if result.class == String
+          [200, {}, [result]]
+        else
+          result
+        end
       else
         [404, {}, ["Oops! No route for #{verb} #{requested_path}"]]
       end
@@ -53,7 +58,7 @@ module Nancy
     end
 
     def params
-      @request.params
+      request.params
     end
   end
 end
@@ -67,19 +72,25 @@ end
 puts nancy.routes
 
 
-# handler
+# route1
 nancy.get "/" do
   [200, {}, ["Your params are #{params.inspect}"]]
 end
 puts nancy.routes
 
-#handler/ route
+#route2
 nancy.post "/" do
   [200, {}, request.body]
 end
 
 puts nancy.routes
 
+nancy.get "/hello" do
+  "Nancy says hello!"
+end
 
-# This line is new!
+ puts nancy.routes
+
+
+# This line is new! Handler using WEBrick
 Rack::Handler::WEBrick.run nancy, Port: 9292
