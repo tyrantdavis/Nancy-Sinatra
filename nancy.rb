@@ -21,3 +21,11 @@ module Nancy
     end
   end
 end
+
+nancy = Nancy::Base.new
+
+nancy.get "/hello" do
+  [200, {}, ["Nancy says hello"]]
+end
+
+puts nancy.routes
