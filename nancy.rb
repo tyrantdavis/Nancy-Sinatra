@@ -21,15 +21,12 @@ module Nancy
       handler = @routes.fetch(verb, {}).fetch(requested_path, nil)
 
       if handler
-        handler.call
+        instance_eval(&handler)
       else
         [404, {}, ["Oops! No route for #{verb} #{requested_path}"]]
       end
     end
 
-    def params
-      @request.params
-    end
 
     private
 
@@ -37,23 +34,27 @@ module Nancy
       @routes[verb] ||= {}
       @routes[verb][path] = handler
     end
+
+    def params
+      @request.params
+    end
   end
 end
 
 nancy = Nancy::Base.new
-
+# handler
 nancy.get "/hello" do
   [200, {}, ["Nancy says hello"]]
 end
 
 puts nancy.routes
 
-# handler
-nancy = Nancy::Base.new
 
-nancy.get "/hello" do
-  [200, {}, ["Nancy says hello"]]
+# handler
+nancy.get "/" do
+  [200, {}, ["Your params are #{params.inspect}"]]
 end
+puts nancy.routes
 
 # This line is new!
 Rack::Handler::WEBrick.run nancy, Port: 9292
