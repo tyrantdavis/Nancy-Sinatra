@@ -61,6 +61,7 @@ module Nancy
       request.params
     end
   end
+  Application = Base.new
 end
 
 nancy = Nancy::Base.new
