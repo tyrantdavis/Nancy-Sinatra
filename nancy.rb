@@ -27,6 +27,10 @@ module Nancy
       end
     end
 
+    def params
+      @request.params
+    end
+
     private
 
     def route(verb, path, &handler)
