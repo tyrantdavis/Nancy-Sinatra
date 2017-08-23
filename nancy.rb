@@ -39,3 +39,13 @@ nancy.get "/hello" do
 end
 
 puts nancy.routes
+
+# handler
+nancy = Nancy::Base.new
+
+nancy.get "/hello" do
+  [200, {}, ["Nancy says hello"]]
+end
+
+# This line is new!
+Rack::Handler::WEBrick.run nancy, Port: 9292
