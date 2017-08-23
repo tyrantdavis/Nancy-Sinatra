@@ -64,34 +64,53 @@ module Nancy
   Application = Base.new
 end
 
-nancy = Nancy::Base.new
+# # nancy = Nancy::Base.new
+nancy_application = Nancy::Application
+#
 # handler
-nancy.get "/hello" do
+puts 1
+nancy_application.get "/hello" do
   [200, {}, ["Nancy says hello"]]
 end
 
-puts nancy.routes
+puts nancy_application.routes
 
 
 # route1
-nancy.get "/" do
+puts 2
+nancy_application.get "/" do
   [200, {}, ["Your params are #{params.inspect}"]]
 end
-puts nancy.routes
+puts nancy_application.routes
 
 #route2
-nancy.post "/" do
+puts 3
+nancy_application.post "/" do
   [200, {}, request.body]
 end
 
-puts nancy.routes
+puts nancy_application.routes
 
-nancy.get "/hello" do
+puts 4
+nancy_application.get "/hello" do
   "Nancy says hello!"
 end
 
- puts nancy.routes
+ puts nancy_application.routes
 
 
-# This line is new! Handler using WEBrick
-Rack::Handler::WEBrick.run nancy, Port: 9292
+# # This line is new! Handler using WEBrick
+# Rack::Handler::WEBrick.run nancy, Port: 9292
+
+
+puts 5
+nancy_application.get "/hello" do
+  "Nancy::Application says hello"
+end
+
+puts nancy_application.routes
+puts "The end."
+
+
+# Use `nancy_application,` not `nancy`
+Rack::Handler::WEBrick.run nancy_application, Port: 9292
