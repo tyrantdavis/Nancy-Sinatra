@@ -8,7 +8,7 @@ module Nancy
     end
 
     attr_reader :routes
-    attr_reader :request
+
 
     def get(path, &handler)
       route("GET", path, &handler)
@@ -30,6 +30,10 @@ module Nancy
       route("DELETE", path, &handler)
     end
 
+    def head(path, &handler) # where did this come from?
+      route("HEAD", path, &handler)
+    end # here
+
     def call(env)
       @request = Rack::Request.new(env)
       verb = @request.request_method
@@ -47,22 +51,9 @@ module Nancy
       else
         [404, {}, ["Oops! No route for #{verb} #{requested_path}"]]
       end
-
-      module Delegator
-        def self.delegate(*methods, to:)
-          Array(methods).each do |method_name|
-            define_method(method_name) do |*args, &block|
-              to.send(method_name, *args, &block)
-            end
-
-            private method_name
-          end
-        end
-
-        delegate :get, :patch, :put, :post, :delete, :head, to: Application
-      end
     end
 
+    attr_reader :request
 
     private
 
@@ -72,59 +63,68 @@ module Nancy
     end
 
     def params
-      request.params
+      @request.params
     end
   end
   Application = Base.new
+
+  module Delegator
+    def self.delegate(*methods, to:)
+      Array(methods).each do |method_name|
+        define_method(method_name) do |*args, &block|
+          to.send(method_name, *args, &block)
+        end
+
+        private method_name
+      end
+    end
+
+    delegate :get, :patch, :put, :post, :delete, :head, to: Application
+  end
 end
 
-# # nancy = Nancy::Base.new
-nancy_application = Nancy::Application
-#
-# handler
-puts 1
-nancy_application.get "/hello" do
-  [200, {}, ["Nancy says hello"]]
+include Nancy::Delegator
+
+
+
+# # handler
+get "/hi" do
+  [200, {}, ["Nancy says hi!"]]
 end
+puts Nancy::Application.routes
 
-puts nancy_application.routes
 
-
-# route1
-puts 2
-nancy_application.get "/" do
-  [200, {}, ["Your params are #{params.inspect}"]]
+get "/" do
+  [200, {}, ["Your params are #{params.inspect}"]] # params not populating
 end
-puts nancy_application.routes
+puts Nancy::Application.routes
 
-#route2
-puts 3
-nancy_application.post "/" do
+
+post "/" do
   [200, {}, request.body]
 end
+puts Nancy::Application.routes
 
-puts nancy_application.routes
 
-puts 4
-nancy_application.get "/hello" do
+get "/hello-u" do
   "Nancy says hello!"
 end
-
- puts nancy_application.routes
-
-
-# # This line is new! Handler using WEBrick
-# Rack::Handler::WEBrick.run nancy, Port: 9292
+ puts Nancy::Application.routes
 
 
-puts 5
-nancy_application.get "/hello" do
+get "/hello" do
   "Nancy::Application says hello"
 end
-
-puts nancy_application.routes
-puts "The end."
+puts Nancy::Application.routes
 
 
-# Use `nancy_application,` not `nancy`
-Rack::Handler::WEBrick.run nancy_application, Port: 9292
+get "/bare-get" do
+    "Whoa, it works!"
+end
+
+post "/" do
+  request.body.read
+end
+puts Nancy::Application.routes
+
+Rack::Handler::WEBrick.run Nancy::Application, Port: 9292
