@@ -8,11 +8,12 @@ module Nancy
     end
 
     attr_reader :routes
+    attr_reader :request
 
     def get(path, &handler)
       route("GET", path, &handler)
     end
-    
+
     def post(path, &handler)
       route("POST", path, &handler)
     end
@@ -71,6 +72,9 @@ nancy.get "/" do
   [200, {}, ["Your params are #{params.inspect}"]]
 end
 puts nancy.routes
+
+
+
 
 # This line is new!
 Rack::Handler::WEBrick.run nancy, Port: 9292
