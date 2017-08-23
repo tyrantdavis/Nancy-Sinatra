@@ -73,7 +73,12 @@ nancy.get "/" do
 end
 puts nancy.routes
 
+#handler/ route
+nancy.post "/" do
+  [200, {}, request.body]
+end
 
+puts nancy.routes
 
 
 # This line is new!
