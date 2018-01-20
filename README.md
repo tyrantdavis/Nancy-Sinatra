@@ -14,13 +14,13 @@ get '/' do
 end
 ```
 
-Install the gem:
+#### Install the gem:
 
 ```shell
 gem install sinatra
 ```
 
-And run with:
+#### And run with:
 
 ```shell
 ruby myapp.rb
